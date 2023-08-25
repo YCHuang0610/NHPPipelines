@@ -350,7 +350,7 @@ function runFSwhite () {
 	fslmaths aseg+claustrum.nii.gz -thr 138 -uthr 138 -bin -mul 12 claustrum2putamen.lh
 	fslmaths aseg+claustrum.nii.gz -thr 138 -uthr 138 -bin -add aseg+claustrum.nii.gz -thr 139 -uthr 139 -binv \
 	-mul aseg+claustrum.nii.gz -add claustrum2putamen.lh.nii.gz -add claustrum2putamen.rh.nii.gz aseg.nii.gz -odt char
-	mri_convert -ns 1 -odt uchar aseg.nii.gz aseg.mgz
+	mri_convert -ns 1 -odt uchar aseg.nii.gz aseg.presurf.mgz
 	cd $DIR
 
 	log_Msg "Fifth recon-all steps for white"
@@ -424,7 +424,7 @@ function runFSpial () {
 	#Final Recon-all Steps
 	log_Msg "Final recon-all steps"
 	if [[ ! $SPECIES =~ Human ]] ; then
-		cp "$SubjectDIR"/"$SubjectID"/mri/aseg.mgz "$SubjectDIR"/"$SubjectID"/mri/wmparc.mgz
+		cp "$SubjectDIR"/"$SubjectID"/mri/aseg.presurf.mgz "$SubjectDIR"/"$SubjectID"/mri/wmparc.mgz
 	else
 		recon-all -subjid $SubjectID -sd $SubjectDIR -surfvolume -parcstats -cortparc2 -parcstats2 -cortparc3 -parcstats3 -cortribbon \
 		-segstats -aparc2aseg -wmparc -balabels -label-exvivo-ec -openmp ${num_cores} ${seed_cmd_appendix}
