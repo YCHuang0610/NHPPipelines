@@ -282,6 +282,8 @@ function runFSaseg () {
 	mri_cc -aseg aseg.auto_noCCseg.mgz -o aseg.auto.mgz -lta "$SubjectDIR"/"$SubjectID"/mri/transforms/cc_up.lta "$SubjectID"
 	cp aseg.auto.mgz aseg+claustrum.mgz
 	cp aseg.auto.mgz aseg.mgz
+ 	# by YCH 20230825
+  	cp aseg.auto.mgz aseg.presurf.mgz
 	cd $DIR
 
 }	
