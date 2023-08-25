@@ -261,6 +261,7 @@ function runFSbrainmaskandseg () {
 	#recon-all -subjid $SubjectID -sd $SubjectDIR -gcareg -canorm -careg -careginv -rmneck -skull-lta -gca-dir $GCAdir \ --by YCH 20230825 for freesurfer 7.x
 	#-openmp ${num_cores} ${seed_cmd_appendix}
  	recon-all -subjid $SubjectID -sd $SubjectDIR -gcareg -canorm -careg -rmneck -skull-lta -gca-dir $GCAdir \
+	-gca RB_all_2008-03-26.gca -gca-skull RB_all_withskull_2008-03-26.gca \
 	-openmp ${num_cores} ${seed_cmd_appendix}
 	cp "$SubjectDIR"/"$SubjectID"/mri/norm.mgz "$SubjectDIR"/"$SubjectID"/mri/norm.orig.mgz 
 
@@ -350,13 +351,32 @@ function runFSwhite () {
 	fslmaths aseg+claustrum.nii.gz -thr 138 -uthr 138 -bin -mul 12 claustrum2putamen.lh
 	fslmaths aseg+claustrum.nii.gz -thr 138 -uthr 138 -bin -add aseg+claustrum.nii.gz -thr 139 -uthr 139 -binv \
 	-mul aseg+claustrum.nii.gz -add claustrum2putamen.lh.nii.gz -add claustrum2putamen.rh.nii.gz aseg.nii.gz -odt char
-	mri_convert -ns 1 -odt uchar aseg.nii.gz aseg.presurf.mgz
+	#mri_convert -ns 1 -odt uchar aseg.nii.gz aseg.mgz --by YCH 20230825
+ 	mri_convert -ns 1 -odt uchar aseg.nii.gz aseg.presurf.mgz
 	cd $DIR
 
 	log_Msg "Fifth recon-all steps for white"
 	recon-all -subjid $SubjectID -sd $SubjectDIR -fill -tessellate -smooth1 -inflate1 -qsphere -fix -white \
 	-openmp ${num_cores} ${seed_cmd_appendix}
+	#####Edit by YCH 20230825
+	# NE: -white step fails. mris_place_surface needs --rip-bg-no-annot option
+    	# NE: need to add -autodetgwstats so that /surf/autodet.gw.stats.lh.dat is created
+	recon-all -subjid $SubjectID -sd $SubjectDIR -fill -tessellate -smooth1 -inflate1 -qsphere -fix -autodetgwstats \
+	-openmp ${num_cores} ${seed_cmd_appendix}
 
+	# I think this is what the -white option was supposed to do
+	log_Msg 'run fixed section NE'
+	cd "$SubjectDIR"/"$SubjectID"/mri
+	mris_place_surface --adgws-in ../surf/autodet.gw.stats.lh.dat --wm wm.mgz --threads 1 --invol brain.finalsurfs.mgz --lh --i ../surf/lh.orig --o ../surf/lh.white.preaparc --white --nsmooth 5 --no-rip-midline --no-rip-bg --no-rip-wmsa --no-rip-freeze --no-rip-lesion
+	mris_place_surface --adgws-in ../surf/autodet.gw.stats.rh.dat --wm wm.mgz --threads 1 --invol brain.finalsurfs.mgz --rh --i ../surf/rh.orig --o ../surf/rh.white.preaparc --white --nsmooth 5 --no-rip-midline --no-rip-bg --no-rip-wmsa --no-rip-freeze --no-rip-lesion
+
+	mris_make_surfaces -aseg ../mri/aseg.presurf -whiteonly -noaparc -mgz -T1 brain.finalsurfs $SubjectID lh
+	mris_make_surfaces -aseg ../mri/aseg.presurf -whiteonly -noaparc -mgz -T1 brain.finalsurfs $SubjectID rh
+
+	mris_place_surface --adgws-in ../surf/autodet.gw.stats.lh.dat --seg aseg.presurf.mgz --threads 1 --wm wm.mgz --invol brain.finalsurfs.mgz --lh --i ../surf/lh.white.preaparc --o ../surf/lh.white --white --nsmooth 0 --rip-label ../label/lh.cortex.label --rip-bg --rip-surf ../surf/lh.white.preaparc
+	mris_place_surface --adgws-in ../surf/autodet.gw.stats.rh.dat --seg aseg.presurf.mgz --threads 1 --wm wm.mgz --invol brain.finalsurfs.mgz --rh --i ../surf/rh.white.preaparc --o ../surf/rh.white --white --nsmooth 0 --rip-label ../label/rh.cortex.label --rip-bg --rip-surf ../surf/rh.white.preaparc
+	#####Above edit by YCH 20230825
+ 
 	# Highres and white stuffs and fine-tune T2w to T1w Reg
 
 	log_Msg "High resolution white matter and fine tune T2w to T1w registration"
