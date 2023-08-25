@@ -192,8 +192,10 @@ for TXw in ${Modalities} ; do
 	echo "NOT PERFORMING GRADIENT DISTORTION CORRECTION"
 	i=1
 	for Image in $TXwInputImages ; do
-	    ${RUN} ${FSLDIR}/bin/fslreorient2std ${StudyFolder}/${Subject}/RawData/$Image ${TXwFolder}/${TXwImage}${i}_gdc
-	    ${RUN} ${FSLDIR}/bin/fslreorient2std `remove_ext ${StudyFolder}/${Subject}/RawData/$Image`_brain ${TXwFolder}/${TXwImage}${i}_gdc_brain
+	    #${RUN} ${FSLDIR}/bin/fslreorient2std ${StudyFolder}/${Subject}/RawData/$Image ${TXwFolder}/${TXwImage}${i}_gdc --by YCH 20230824
+     	    ${RUN} ${FSLDIR}/bin/fslreorient2std $Image ${TXwFolder}/${TXwImage}${i}_gdc
+	    #${RUN} ${FSLDIR}/bin/fslreorient2std `remove_ext ${StudyFolder}/${Subject}/RawData/$Image`_brain ${TXwFolder}/${TXwImage}${i}_gdc_brain --by YCH 20230824
+            #${RUN} ${FSLDIR}/bin/fslreorient2std `remove_ext $Image`_brain ${TXwFolder}/${TXwImage}${i}_gdc_brain
 	    OutputTXwImageSTRING="${OutputTXwImageSTRING}${TXwFolder}/${TXwImage}${i}_gdc "
 	    i=$(($i+1))
 	done
