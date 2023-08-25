@@ -258,7 +258,9 @@ function runFSbrainmaskandseg () {
 	# Registration and normalization to GCA
 	log_Msg "Second recon-all steps for registration and normaliztion to GCA"
 
-	recon-all -subjid $SubjectID -sd $SubjectDIR -gcareg -canorm -careg -careginv -rmneck -skull-lta -gca-dir $GCAdir \
+	#recon-all -subjid $SubjectID -sd $SubjectDIR -gcareg -canorm -careg -careginv -rmneck -skull-lta -gca-dir $GCAdir \ --by YCH 20230825 for freesurfer 7.x
+	#-openmp ${num_cores} ${seed_cmd_appendix}
+ 	recon-all -subjid $SubjectID -sd $SubjectDIR -gcareg -canorm -careg -rmneck -skull-lta -gca-dir $GCAdir \
 	-openmp ${num_cores} ${seed_cmd_appendix}
 	cp "$SubjectDIR"/"$SubjectID"/mri/norm.mgz "$SubjectDIR"/"$SubjectID"/mri/norm.orig.mgz 
 
